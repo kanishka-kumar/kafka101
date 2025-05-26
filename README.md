@@ -1,7 +1,7 @@
 # kafka101
 Creating Kafka Based Application
 
--- Starting Kafka in local 
+Starting Kafka in local 
 --
 
 * Modify config/server.properties as below and save it.

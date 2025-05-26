@@ -1,19 +1,21 @@
 package com.kanishka.demo.kafka;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-public class ProducerDemo {
+public class ProducerDemoWithCallback {
 
-    private static final Logger log = LoggerFactory.getLogger(ProducerDemo.class.getSimpleName());
+    private static final Logger log = LoggerFactory.getLogger(ProducerDemoWithCallback.class.getSimpleName());
 
     public static void main(String[] args) {
-        log.info("Kafka ProducerDemo Started");
+        log.info("Kafka ProducerDemoWithCallBack Started");
 
         //Create Producer Properties
         Properties properties = new Properties();
@@ -31,12 +33,27 @@ public class ProducerDemo {
         //Create the Producer
         KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
 
-        //Create a Producer Record, that is sent to Kafka
-        ProducerRecord<String,String> producerRecord =
-                new ProducerRecord<>("demo_java_topic", "Hello World");
+        for(int i=0;i<10;i++){
+            //Create a Producer Record, that is sent to Kafka
+            ProducerRecord<String,String> producerRecord =
+                    new ProducerRecord<>("demo_java_topic", "Hello World-> "+i);
 
-        //Send Data Async
-        producer.send(producerRecord);
+            //Send Data Async
+            producer.send(producerRecord, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    //Executes everu time a record is successfully sent or exception is thrown.
+                    if(e == null) {
+                        log.info("Received New Metadata \n" +
+                                "Topic :"+ recordMetadata.topic() + "\n"+
+                                "Partition: "+recordMetadata.partition()+ "\n"+
+                                "Offset: "+recordMetadata.offset()+ "\n"+
+                                "Timestamp: "+recordMetadata.timestamp());
+                    } else
+                        log.error("Error while Producing New Metadata", e);
+                }
+            });
+        }
 
         //Tells the producer to send all data and block until done -- synchronous
         producer.flush();
