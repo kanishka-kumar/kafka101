@@ -1,9 +1,6 @@
 package com.kanishka.demo.kafka;
 
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,18 +27,22 @@ public class ProducerDemoWithCallback {
         properties.setProperty("key.serializer", StringSerializer.class.getName());
         properties.setProperty("value.serializer", StringSerializer.class.getName());
 
+        properties.setProperty("batch.size", "400");
+
+        //To explicitly use Round Robin to message go to every partition. But, not recommended.
+        //properties.setProperty("partitioner.class", RoundRobinPartitioner.class.getSimpleName());
+
         //Create the Producer
         KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
 
-        for(int i=0;i<10;i++){
-            //Create a Producer Record, that is sent to Kafka
-            ProducerRecord<String,String> producerRecord =
-                    new ProducerRecord<>("demo_java_topic", "Hello World-> "+i);
+        for (int i = 0; i < 10; i++) {
+            for(int j=0;j<30;j++){
+                //Create a Producer Record, that is sent to Kafka
+                ProducerRecord<String,String> producerRecord =
+                        new ProducerRecord<>("demo_java_topic", i+" --> Hello World -> "+j);
 
-            //Send Data Async
-            producer.send(producerRecord, new Callback() {
-                @Override
-                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                //Send Data Async
+                producer.send(producerRecord, (recordMetadata, e) -> {
                     //Executes everu time a record is successfully sent or exception is thrown.
                     if(e == null) {
                         log.info("Received New Metadata \n" +
@@ -51,8 +52,15 @@ public class ProducerDemoWithCallback {
                                 "Timestamp: "+recordMetadata.timestamp());
                     } else
                         log.error("Error while Producing New Metadata", e);
-                }
-            });
+                });
+            }
+        }
+
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         //Tells the producer to send all data and block until done -- synchronous
