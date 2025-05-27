@@ -22,7 +22,7 @@ public class ProducerDemo {
         /*properties.setProperty("bootstrap.servers", "cluster.kafka.xyz:9092");
         properties.setProperty("security.protocol", "SASL_SSL");
         properties.setProperty("sasl.mechanism", "PLAIN");
-        properties.setProperty("sasl.jaas.config","");*/
+        properties.setProperty("sasl.jaas.config","org.apache.kafka.common.security.plain.PlainLoginModule required username="<your username>" password="<your password>"");*/
 
         //Set Producer Properties
         properties.setProperty("key.serializer", StringSerializer.class.getName());

@@ -21,13 +21,11 @@ public class ProducerDemoWithCallback {
         /*properties.setProperty("bootstrap.servers", "cluster.kafka.xyz:9092");
         properties.setProperty("security.protocol", "SASL_SSL");
         properties.setProperty("sasl.mechanism", "PLAIN");
-        properties.setProperty("sasl.jaas.config","");*/
+        properties.setProperty("sasl.jaas.config","org.apache.kafka.common.security.plain.PlainLoginModule required username="<your username>" password="<your password>"");*/
 
         //Set Producer Properties
         properties.setProperty("key.serializer", StringSerializer.class.getName());
         properties.setProperty("value.serializer", StringSerializer.class.getName());
-
-        properties.setProperty("batch.size", "400");
 
         //To explicitly use Round Robin to message go to every partition. But, not recommended.
         //properties.setProperty("partitioner.class", RoundRobinPartitioner.class.getSimpleName());
